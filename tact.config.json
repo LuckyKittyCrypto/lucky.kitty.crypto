@@ -1,8 +1,8 @@
 {
     "projects": [{
         "name": "SampleJetton",
-        "path": "./sources/contract.tact",
-        "output": "./sources/output",
+        "path": "./contracts/contract.tact",
+        "output": "./contracts/output",
         "options":{
             
         }

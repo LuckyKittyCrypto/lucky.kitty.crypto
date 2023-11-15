@@ -63,7 +63,7 @@ trait Jetton with Ownable {
     }
 
     virtual fun getJettonWalletInit(address: Address): StateInit {
-        return initOf JettonDefaultWallet(myAddress(), address);
+        return initOf KittyWallet(myAddress(), address);
     }
 
     // ====== Get Methods ====== //
@@ -86,7 +86,7 @@ trait Jetton with Ownable {
 
 // ============================================================ //
 @interface("org.ton.jetton.wallet")
-contract JettonDefaultWallet {
+contract KittyWallet {
     const minTonsForStorage: Int = ton("0.01");
     const gasConsumption: Int = ton("0.01");
 
@@ -113,7 +113,7 @@ contract JettonDefaultWallet {
         self.balance = self.balance - msg.amount; 
         require(self.balance >= 0, "Invalid balance");
 
-        let init: StateInit = initOf JettonDefaultWallet(self.master, msg.destination);  
+        let init: StateInit = initOf KittyWallet(self.master, msg.destination);  
         let wallet_address: Address = contractAddress(init);
         send(SendParameters{
             to: wallet_address, 
@@ -137,7 +137,7 @@ contract JettonDefaultWallet {
         let ctx: Context = context();
 
         if (ctx.sender != self.master) {
-            let sinit: StateInit = initOf JettonDefaultWallet(self.master, msg.from);
+            let sinit: StateInit = initOf KittyWallet(self.master, msg.from);
             require(contractAddress(sinit) == ctx.sender, "Invalid sender!");
         }
 
@@ -206,7 +206,7 @@ contract JettonDefaultWallet {
 
     receive(msg: ProvideWalletAddress) {
         require(context().value >= ton("0.0061"), "Insufficient gas");
-        let init: StateInit = initOf JettonDefaultWallet(self.master, msg.owner_address);
+        let init: StateInit = initOf KittyWallet(self.master, msg.owner_address);
         let wallet_address: Address = contractAddress(init);
 
         let response_body: TakeWalletAddress = TakeWalletAddress{
@@ -247,7 +247,7 @@ contract JettonDefaultWallet {
             balance: self.balance,
             owner: self.owner,
             master: self.master,
-            wallet_code: (initOf JettonDefaultWallet(self.master, self.owner)).code
+            wallet_code: (initOf KittyWallet(self.master, self.owner)).code
         };
     }
     

@@ -1,11 +1,11 @@
 import { Address, beginCell, contractAddress, toNano, Cell, TonClient4 } from "ton";
 import { ContractSystem, testAddress } from "ton-emulator";
-import { buildOnchainMetadata } from "./utils/jetton-helpers";
-import { printAddress, printHeader, printDeploy } from "./utils/print";
-import { deploy } from "./utils/deploy";
+import { buildOnchainMetadata } from "./jetton-helpers";
+import { printAddress, printHeader, printDeploy } from "./print";
+import { deploy } from "./deploy";
 
-import { SampleJetton } from "./output/SampleJetton_SampleJetton";
-import { JettonDefaultWallet, storeTokenTransfer } from "./output/SampleJetton_JettonDefaultWallet";
+import { KittyJetton } from "../contracts/output/KittyJetton_KittyJetton";
+import { KittyWallet, storeTokenTransfer } from "../contracts/output/KittyJetton_KittyWallet";
 
 // 🔴 Jetton Root Address
 let jetton_minter_root = Address.parse("");
@@ -17,13 +17,13 @@ let caller_wallet_address = Address.parse("");
 let new_owner_Address = Address.parse("");
 
 (async () => {
-    let contract_address = await SampleJetton.fromAddress(jetton_minter_root);
+    let contract_address = await KittyJetton.fromAddress(jetton_minter_root);
 
     // Get the Jetton Wallet Address of the deployer
-    let target_jetton_wallet_init = await JettonDefaultWallet.init(contract_address.address, caller_wallet_address);
+    let target_jetton_wallet_init = await KittyWallet.init(contract_address.address, caller_wallet_address);
 
     // Get the Jetton Wallet Address of the new owner
-    let new_owner_jetton_wallet = await JettonDefaultWallet.fromInit(contract_address.address, new_owner_Address);
+    let new_owner_jetton_wallet = await KittyWallet.fromInit(contract_address.address, new_owner_Address);
 
     console.log("================================================================");
     // ✨Pack the forward message into a cell

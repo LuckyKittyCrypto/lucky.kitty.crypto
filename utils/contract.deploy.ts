@@ -1,9 +1,9 @@
 import { beginCell, contractAddress, toNano, TonClient4, WalletContractV4, internal, fromNano } from "ton";
 import { mnemonicToPrivateKey } from "ton-crypto";
-import { buildOnchainMetadata } from "./utils/jetton-helpers";
+import { buildOnchainMetadata } from "./jetton-helpers";
 
-import { SampleJetton, storeMint } from "./output/SampleJetton_SampleJetton";
-import { printSeparator } from "./utils/print";
+import { KittyJetton, storeMint } from "../contracts/output/KittyJetton_KittyJetton";
+import { printSeparator } from "./print";
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -36,7 +36,7 @@ dotenv.config();
     // Compute init data for deployment
     // NOTICE: the parameters inside the init functions were the input for the contract address
     // which means any changes will change the smart contract address as well
-    let init = await SampleJetton.init(deployer_wallet_contract.address, content, max_supply);
+    let init = await KittyJetton.init(deployer_wallet_contract.address, content, max_supply);
     let jettonMaster = contractAddress(workchain, init);
     let deployAmount = toNano("0.15");
 

@@ -1,12 +1,12 @@
 import { Address, beginCell, contractAddress, toNano, TonClient4, internal, fromNano, WalletContractV4 } from "ton";
-import { deploy } from "./utils/deploy";
-import { printAddress, printDeploy, printHeader, printSeparator } from "./utils/print";
-import { buildOnchainMetadata } from "./utils/jetton-helpers";
+import { deploy } from "./deploy";
+import { printAddress, printDeploy, printHeader, printSeparator } from "./print";
+import { buildOnchainMetadata } from "./jetton-helpers";
 import { mnemonicToPrivateKey } from "ton-crypto";
 import * as dotenv from "dotenv";
 dotenv.config();
 
-import { SampleJetton, storeTokenTransfer } from "./output/SampleJetton_SampleJetton";
+import { KittyJetton, storeTokenTransfer } from "../contracts/output/KittyJetton_KittyJetton";
 
 // 🔴 Owner should usually be the deploying wallet's address.
 let NewOnwer_Address = Address.parse("");
@@ -38,9 +38,9 @@ let NewOnwer_Address = Address.parse("");
     // Compute init data for deployment
     // NOTICE: the parameters inside the init functions were the input for the contract address
     // which means any changes will change the smart contract address as well.
-    let init = await SampleJetton.init(wallet_contract.address, content, max_supply);
+    let init = await KittyJetton.init(wallet_contract.address, content, max_supply);
     let jetton_masterWallet = contractAddress(workchain, init);
-    let contract_dataFormat = SampleJetton.fromAddress(jetton_masterWallet);
+    let contract_dataFormat = KittyJetton.fromAddress(jetton_masterWallet);
     let contract = client4.open(contract_dataFormat);
     let jetton_wallet = await contract.getGetWalletAddress(wallet_contract.address);
     console.log("✨ " + wallet_contract.address + "'s JettonWallet ==> ");

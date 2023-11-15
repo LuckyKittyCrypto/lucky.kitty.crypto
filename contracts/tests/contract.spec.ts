@@ -1,19 +1,19 @@
 import { ContractSystem } from "@tact-lang/emulator";
-import { buildOnchainMetadata } from "./utils/jetton-helpers";
+import { buildOnchainMetadata } from "../../utils/jetton-helpers";
 import { Blockchain, SandboxContract, TreasuryContract } from "@ton-community/sandbox";
 import { beginCell, contractAddress, fromNano, StateInit, toNano } from "ton-core";
 import "@ton-community/test-utils";
 
-import { SampleJetton, Mint, TokenTransfer } from "./output/SampleJetton_SampleJetton";
-import { JettonDefaultWallet, TokenBurn } from "./output/SampleJetton_JettonDefaultWallet";
+import { KittyJetton, Mint, TokenTransfer } from "../output/KittyJetton_KittyJetton";
+import { KittyWallet, TokenBurn } from "../output/KittyJetton_KittyWallet";
 
 //
 // This version of test is based on "@ton-community/sandbox" package
 //
 describe("contract", () => {
     let blockchain: Blockchain;
-    let token: SandboxContract<SampleJetton>;
-    let jettonWallet: SandboxContract<JettonDefaultWallet>;
+    let token: SandboxContract<KittyJetton>;
+    let jettonWallet: SandboxContract<KittyWallet>;
     let deployer: SandboxContract<TreasuryContract>;
 
     beforeEach(async () => {
@@ -29,7 +29,7 @@ describe("contract", () => {
         };
         let content = buildOnchainMetadata(jettonParams);
         let max_supply = toNano(1234766689011); // Set the specific total supply in nano
-        token = blockchain.openContract(await SampleJetton.fromInit(deployer.address, content, max_supply));
+        token = blockchain.openContract(await KittyJetton.fromInit(deployer.address, content, max_supply));
 
         // Send Transaction
         const deployResult = await token.send(deployer.getSender(), { value: toNano("10") }, "Mint: 100");
@@ -60,7 +60,7 @@ describe("contract", () => {
         };
         const mintResult = await token.send(deployer.getSender(), { value: toNano("10") }, Mint);
         expect(mintResult.transactions).toHaveTransaction({
-            from: deployer.address,
+            from: token.address,
             to: token.address,
             success: true,
         });
@@ -69,7 +69,7 @@ describe("contract", () => {
         expect(totalSupplyBefore + mintAmount).toEqual(totalSupplyAfter);
 
         const playerWallet = await token.getGetWalletAddress(player.address);
-        jettonWallet = blockchain.openContract(JettonDefaultWallet.fromAddress(playerWallet));
+        jettonWallet = blockchain.openContract(KittyWallet.fromAddress(playerWallet));
         const walletData = await jettonWallet.getGetWalletData();
         expect(walletData.owner).toEqualAddress(player.address);
         expect(walletData.balance).toEqual(mintAmount);
@@ -89,7 +89,7 @@ describe("contract", () => {
         await token.send(deployer.getSender(), { value: toNano("10") }, mintMessage);
 
         const senderWalletAddress = await token.getGetWalletAddress(sender.address);
-        const senderWallet = blockchain.openContract(JettonDefaultWallet.fromAddress(senderWalletAddress));
+        const senderWallet = blockchain.openContract(KittyWallet.fromAddress(senderWalletAddress));
 
         // Transfer tokens from sender's wallet to receiver's wallet
         const transferMessage: TokenTransfer = {
@@ -106,7 +106,7 @@ describe("contract", () => {
         // console.log(transferResult.transactions);
 
         const receiverWalletAddress = await token.getGetWalletAddress(receiver.address);
-        const receiverWallet = blockchain.openContract(JettonDefaultWallet.fromAddress(receiverWalletAddress));
+        const receiverWallet = blockchain.openContract(KittyWallet.fromAddress(receiverWalletAddress));
 
         const senderWalletDataAfterTransfer = await senderWallet.getGetWalletData();
         const receiverWalletDataAfterTransfer = await receiverWallet.getGetWalletData();
@@ -120,7 +120,7 @@ describe("contract", () => {
     it("Mint tokens then Burn tokens", async () => {
         // const sender = await blockchain.treasury("sender");
         const deployerWalletAddress = await token.getGetWalletAddress(deployer.address);
-        const deployerWallet = blockchain.openContract(JettonDefaultWallet.fromAddress(deployerWalletAddress));
+        const deployerWallet = blockchain.openContract(KittyWallet.fromAddress(deployerWalletAddress));
         let deployerBalanceInit = (await deployerWallet.getGetWalletData()).balance;
         console.log("deployerBalanceInit = ", deployerBalanceInit);
         const initMintAmount = toNano(100);

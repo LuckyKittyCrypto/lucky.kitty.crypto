@@ -12,14 +12,14 @@ import {
     BitString,
     Slice,
 } from "ton";
-import { printSeparator } from "./utils/print";
+import { printSeparator } from "./print";
 
 // Contract Abi //
-import { buildOnchainMetadata } from "./utils/jetton-helpers";
+import { buildOnchainMetadata } from "./jetton-helpers";
 import { mnemonicToPrivateKey } from "ton-crypto";
 
-import { SampleJetton, loadTokenTransfer } from "./output/SampleJetton_SampleJetton";
-import { JettonDefaultWallet } from "./output/SampleJetton_JettonDefaultWallet";
+import { KittyJetton, loadTokenTransfer } from "../contracts/output/KittyJetton_KittyJetton";
+import { KittyWallet } from "../contracts/output/KittyJetton_KittyWallet";
 
 (async () => {
     // //create client for testnet sandboxv4 API - alternative endpoint
@@ -43,12 +43,12 @@ import { JettonDefaultWallet } from "./output/SampleJetton_JettonDefaultWallet";
     // let max_supply = toNano(1234567666666689011); // Set the specific total supply in nano
     // // Create content Cell
     // let content = buildOnchainMetadata(jettonParams);
-    // let init = await SampleJetton.init(deploy_wallet_contract.address, content, max_supply);
+    // let init = await KittyJetton.init(deploy_wallet_contract.address, content, max_supply);
     // let jetton_minter_contract_address = contractAddress(workchain, init);
     // console.log("Jetton Master: " + jetton_minter_contract_address);
-    // let contract_ddd = await client.open(SampleJetton.fromAddress(jetton_minter_contract_address));
+    // let contract_ddd = await client.open(KittyJetton.fromAddress(jetton_minter_contract_address));
     // let jetton_wallet = await contract_ddd.getGetWalletAddress(deploy_wallet_contract.address);
-    // let contract_dataFormat = JettonDefaultWallet.fromAddress(jetton_wallet);
+    // let contract_dataFormat = KittyWallet.fromAddress(jetton_wallet);
     // let contract = client.open(contract_dataFormat);
     // console.log("Deployer's JettonWallet: " + contract.address);
     // let jettonWalletBalance = await (await contract.getGetWalletData()).balance;

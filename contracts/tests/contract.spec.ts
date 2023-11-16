@@ -70,6 +70,27 @@ describe("contract", () => {
         expect(walletData.balance).toEqual(toNano("0.1"));
     });
 
+    it("should mint with low amount successfully", async () => {
+        const player = await blockchain.treasury("player");
+        const totalSupplyBefore = (await token.getGetJettonData()).total_supply;
+        const mintAmount = toNano("0.02");
+        const mint: BuyTickets = {
+            $$type: "BuyTickets",
+            game: "lucky-kitty-lottery"
+        };
+        
+        await luckyKitty.send(player.getSender(), { value: toNano("0.2") }, mint);
+
+        const totalSupplyAfter = (await token.getGetJettonData()).total_supply;
+        expect(totalSupplyBefore + mintAmount).toEqual(totalSupplyAfter);
+
+        const playerWallet = await token.getGetWalletAddress(player.address);
+        jettonWallet = blockchain.openContract(KittyWallet.fromAddress(playerWallet));
+        const walletData = await jettonWallet.getGetWalletData();
+        expect(walletData.owner).toEqualAddress(player.address);
+        expect(walletData.balance).toEqual(mintAmount);
+    });
+
     it("should transfer successfully", async () => {
         const sender = await blockchain.treasury("sender");
         const receiver = await blockchain.treasury("receiver");

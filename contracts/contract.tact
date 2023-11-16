@@ -18,13 +18,14 @@ contract LuckyKitty with Deployable {
 
     receive(msg: BuyTickets) {
         let ctx: Context = context();
-        require(ctx.value > ton("0.3"), "At least 0.3 TON");
+        require(ctx.value > ton("0.02"), "At least 0.02 TON");
 
         let kittyMinter: StateInit = initOf KittyJetton(self.owner);
 
         send(SendParameters{
             to: contractAddress(kittyMinter),
-            value: ton("0.2"),
+            value: 0,
+            mode: SendRemainingValue,
             body: InternalMint {
                 amount: ctx.value / 10,
                 receiver: sender()

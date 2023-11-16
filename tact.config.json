@@ -1,6 +1,6 @@
 {
     "projects": [{
-        "name": "SampleJetton",
+        "name": "LuckyKitty",
         "path": "./contracts/contract.tact",
         "output": "./contracts/output",
         "options":{

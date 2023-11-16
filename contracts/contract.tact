@@ -1,33 +1,37 @@
 import "@stdlib/deploy";
 import "./jetton";
+import "./messages";
 
-message Mint {
-    amount: Int;
-    receiver: Address;
+struct KittyTokenContent {
+    name: String;
+    description: String;
+    symbol: String;
+    image: String;
 }
 
-contract LuckyKitty with Deployable {  
-    receive("Mint: 100") { // Public Minting
-        let ctx: Context = context();
-        let kittyMinter: Address = initOf KittyJetton(myAddress(), {
-            name: "Test Token Name",
-            description: "This is description of Test Jetton Token in Tact-lang",
-            symbol: "TTN",
-            image: "https://avatars.githubusercontent.com/u/104382459?s=200&v=4",
-        }.toCell());
+contract LuckyKitty with Deployable {
+    owner: Address;
 
-        require(self.mintable, "Not mintable");
-        require(self.total_supply + 100 <= self.max_supply, "Max supply exceeded");
-
-        self.mint(ctx.sender, 100, self.owner); // 🔴 
+    init(owner: Address) {
+        self.owner = owner;
     }
 
-    receive("Owner: MintClose") {
+    receive(msg: BuyTickets) {
         let ctx: Context = context();
+        require(ctx.value > ton("0.3"), "At least 0.3 TON");
 
-        require(ctx.sender == self.owner, "Not owner");
+        let kittyMinter: StateInit = initOf KittyJetton(self.owner);
 
-        self.mintable = false;
+        send(SendParameters{
+            to: contractAddress(kittyMinter),
+            value: ton("0.2"),
+            body: InternalMint {
+                amount: ctx.value / 10,
+                receiver: sender()
+            }.toCell(),
+            data: kittyMinter.data,
+            code: kittyMinter.code
+        });
     }
 }
 
@@ -37,19 +41,21 @@ contract KittyJetton with Jetton {
     content: Cell;
     mintable: Bool;
 
-    init(owner: Address, content: Cell, max_supply: Int) {
+    init(owner: Address) {
         self.total_supply = 0;
         self.owner = owner;
         self.mintable = true;
-        self.content = content;
+        self.content = KittyTokenContent{    
+            name: "Kitty Token Name",
+            description: "This is the kitty token of Lucky Kitty",
+            symbol: "KITTY",
+            image: "https://avatars.githubusercontent.com/u/150975418?v=4"
+        }.toCell();
     }
 
-    receive(msg: Mint) {
-        let ctx: Context = context();
+    receive(msg: InternalMint) {
+        require(sender() != self.owner, "Not allowed to mint");
 
-        require(ctx.sender == self.owner, "Not owner");
-        require(self.mintable, "Not mintable");
-
-        self.mint(msg.receiver, msg.amount, self.owner); // (to, amount, response_destination)
+        self.mint(msg.receiver, msg.amount, self.owner);
     }
 } 

@@ -72,3 +72,12 @@ message(0xd1735400) TakeWalletAddress {
     wallet_address: Address;
     owner_address: Address?;
 }
+
+message InternalMint {
+    amount: Int;
+    receiver: Address;
+}
+
+message BuyTickets {
+    game: String;
+}

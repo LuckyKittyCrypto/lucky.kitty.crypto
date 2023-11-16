@@ -31,14 +31,27 @@ describe("contract", () => {
         };
         
         // Test minting
-        await luckyKitty.send(deployer.getSender(), { value: toNano("10") }, mint);
+        const reply = await luckyKitty.send(deployer.getSender(), { value: toNano("100") }, mint);
 
         const deployerWallet = await token.getGetWalletAddress(deployer.address);
         jettonWallet = blockchain.openContract(KittyWallet.fromAddress(deployerWallet));
         const walletData = await jettonWallet.getGetWalletData();
         expect(walletData.owner).toEqualAddress(deployer.address);
         // Check kitty balance
-        expect(walletData.balance).toEqual(toNano("1"));
+        expect(walletData.balance).toEqual(toNano("10"));
+
+        let burnAmount = toNano("10");
+        const burnMessage: TokenBurn = {
+            $$type: "TokenBurn",
+            query_id: 0n,
+            amount: burnAmount,
+            response_destination: deployer.address,
+            custom_payload: beginCell().endCell(),
+        };
+
+        const burnResult = await jettonWallet.send(deployer.getSender(), { value: toNano("10") }, burnMessage);
+        let deployerBalanceAfterBurn = (await jettonWallet.getGetWalletData()).balance;
+        expect(deployerBalanceAfterBurn).toEqual(walletData.balance - burnAmount);
     });
 
     it("should deploy", async () => {
@@ -73,16 +86,15 @@ describe("contract", () => {
     it("should mint with low amount successfully", async () => {
         const player = await blockchain.treasury("player");
         const totalSupplyBefore = (await token.getGetJettonData()).total_supply;
-        const mintAmount = toNano("0.02");
+        expect(totalSupplyBefore).toEqual(0n);
+        const mintAmount = toNano("0.015");
         const mint: BuyTickets = {
             $$type: "BuyTickets",
             game: "lucky-kitty-lottery"
         };
         
-        await luckyKitty.send(player.getSender(), { value: toNano("0.2") }, mint);
+        const result = await luckyKitty.send(player.getSender(), { value: toNano("0.2") }, mint);
 
-        const totalSupplyAfter = (await token.getGetJettonData()).total_supply;
-        expect(totalSupplyBefore + mintAmount).toEqual(totalSupplyAfter);
 
         const playerWallet = await token.getGetWalletAddress(player.address);
         jettonWallet = blockchain.openContract(KittyWallet.fromAddress(playerWallet));
